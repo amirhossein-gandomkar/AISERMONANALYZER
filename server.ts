@@ -15,11 +15,17 @@ async function startServer() {
 
   // API routes
   app.post("/api/summarize", async (req, res) => {
+    console.log("Received summarize request");
     try {
       const { khutbah1Text, khutbah2Text } = req.body;
 
+      if (!khutbah1Text || !khutbah2Text) {
+        return res.status(400).json({ error: "متن خطبه‌ها یافت نشد." });
+      }
+
       if (!API_KEY) {
-        return res.status(500).json({ error: "Gemini API key is not configured on the server." });
+        console.error("GEMINI_API_KEY is missing in server environment");
+        return res.status(500).json({ error: "کلید API هوش مصنوعی در سرور تنظیم نشده است." });
       }
 
       const ai = new GoogleGenAI({ apiKey: API_KEY });
@@ -103,10 +109,15 @@ async function startServer() {
         },
       });
 
-      res.json(JSON.parse(response.text));
+      const resultText = response.text;
+      if (!resultText) {
+        throw new Error("پاسخی از هوش مصنوعی دریافت نشد.");
+      }
+
+      res.json(JSON.parse(resultText));
     } catch (error: any) {
       console.error("Server API Error:", error);
-      res.status(500).json({ error: error.message || "Internal Server Error" });
+      res.status(500).json({ error: error.message || "خطای داخلی سرور" });
     }
   });
 
