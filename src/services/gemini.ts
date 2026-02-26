@@ -26,7 +26,7 @@ export async function summarizeKhutbahs(khutbah1Text: string, khutbah2Text: stri
   }
 
   const ai = new GoogleGenAI({ apiKey: API_KEY });
-  const model = "Gemini 2.5 Pro";
+  const model = "gemini-2.5-pro";
 
   const prompt = `
     شما یک دستیار متخصص در خلاصهسازی و تحلیل محتوای خطبههای نماز جمعه هستید.
