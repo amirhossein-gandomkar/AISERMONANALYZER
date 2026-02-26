@@ -158,11 +158,15 @@ export async function exportToImage(elementId: string, fileName: string = "Khutb
   if (!element) return;
 
   try {
+    // Wait a bit to ensure image is rendered
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     const canvas = await html2canvas(element, {
-      scale: 3, // Higher scale for better quality
+      scale: 3,
       useCORS: true,
+      allowTaint: true,
       backgroundColor: null,
-      logging: false,
+      logging: true, // Enable logging to help debug
     });
 
     const imgData = canvas.toDataURL("image/png");
@@ -172,7 +176,7 @@ export async function exportToImage(elementId: string, fileName: string = "Khutb
     link.click();
   } catch (error) {
     console.error("Image Export Error:", error);
-    alert("خطایی در تولید تصویر رخ داد.");
+    alert("خطایی در تولید تصویر رخ داد. لطفاً مطمئن شوید تصویر پس‌زمینه به درستی بارگذاری شده است.");
   }
 }
 

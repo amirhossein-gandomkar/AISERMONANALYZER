@@ -101,7 +101,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [showNegasht, setShowNegasht] = useState(false);
-  const [negashtBg, setNegashtBg] = useState<string | null>(null);
+  const negashtBg = "https://raw.githubusercontent.com/amirhossein-gandomkar/AISERMONANALYZER/a3bbbbbe683533ce44b9f00bbc618e66eabbc9f9/kh.png";
   const negashtRef1 = useRef<HTMLDivElement>(null);
   const negashtRef2 = useRef<HTMLDivElement>(null);
 
@@ -350,114 +350,73 @@ export default function App() {
                       exit={{ opacity: 0, height: 0 }}
                       className="overflow-hidden mb-12 space-y-8"
                     >
-                      {/* Background Upload */}
-                      {!negashtBg && (
-                        <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-amber-500/30 rounded-2xl bg-amber-500/5">
-                          <ImageIcon className="w-12 h-12 text-amber-500/50 mb-4" />
-                          <p className="text-amber-400 mb-4">لطفاً تصویر پس‌زمینه خطبه‌نگاشت را انتخاب کنید</p>
-                          <input 
-                            type="file" 
-                            accept="image/*" 
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                const reader = new FileReader();
-                                reader.onload = (ev) => setNegashtBg(ev.target?.result as string);
-                                reader.readAsDataURL(file);
-                              }
+                      <div className="grid md:grid-cols-2 gap-8">
+                        {/* Negasht 1 */}
+                        <div className="space-y-4">
+                          <h4 className="text-center text-amber-400 font-bold">خطبه‌نگاشت مذهبی</h4>
+                          <div 
+                            id="negasht-1-container"
+                            className="relative aspect-square w-full max-w-[500px] mx-auto overflow-hidden rounded-xl shadow-2xl"
+                            style={{ 
+                              backgroundImage: `url('${negashtBg}')`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center'
                             }}
-                            className="hidden" 
-                            id="negasht-bg-upload" 
-                          />
-                          <label 
-                            htmlFor="negasht-bg-upload"
-                            className="px-6 py-2 bg-amber-500 text-black font-bold rounded-lg cursor-pointer hover:bg-amber-400 transition-all"
                           >
-                            انتخاب تصویر
-                          </label>
-                        </div>
-                      )}
-
-                      {negashtBg && (
-                        <div className="grid md:grid-cols-2 gap-8">
-                          {/* Negasht 1 */}
-                          <div className="space-y-4">
-                            <h4 className="text-center text-amber-400 font-bold">خطبه‌نگاشت مذهبی</h4>
-                            <div 
-                              id="negasht-1-container"
-                              className="relative aspect-square w-full max-w-[500px] mx-auto overflow-hidden rounded-xl shadow-2xl"
-                              style={{ 
-                                backgroundImage: `url('${negashtBg}')`,
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center'
-                              }}
-                            >
-                              {/* Text Overlay Area - Blue Box at bottom */}
-                              <div className="absolute bottom-[4.5%] left-[5%] right-[5%] h-[35%] flex flex-col items-center justify-center text-center px-6 leading-tight">
-                                <p className="text-[10px] font-bold text-white mb-1" style={{ textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000', fontFamily: 'Vazirmatn' }}>
-                                  نماز جمعه {new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())} دهستان میانکاله (زاغمرز)
-                                </p>
-                                <p className="text-[15px] font-bold text-white mb-2" style={{ textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000', fontFamily: 'Vazirmatn' }}>
-                                  امام جمعه محترم دهستان میانکاله(زاغمرز) حجت الاسلام والمسلمین حاج حسین انزائی:
-                                </p>
-                                <p className="text-[15.5px] font-bold text-yellow-400" style={{ textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000', fontFamily: 'Vazirmatn' }}>
-                                  {summary.khutbah1Quote}
-                                </p>
-                              </div>
+                            {/* Text Overlay Area - Blue Box at bottom */}
+                            <div className="absolute bottom-[4.5%] left-[5%] right-[5%] h-[35%] flex flex-col items-center justify-center text-center px-6 leading-tight">
+                              <p className="text-[10px] font-bold text-white mb-1" style={{ textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000', fontFamily: 'Vazirmatn' }}>
+                                نماز جمعه {new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())} دهستان میانکاله (زاغمرز)
+                              </p>
+                              <p className="text-[15px] font-bold text-white mb-2" style={{ textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000', fontFamily: 'Vazirmatn' }}>
+                                امام جمعه محترم دهستان میانکاله(زاغمرز) حجت الاسلام والمسلمین حاج حسین انزائی:
+                              </p>
+                              <p className="text-[15.5px] font-bold text-yellow-400" style={{ textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000', fontFamily: 'Vazirmatn' }}>
+                                {summary.khutbah1Quote}
+                              </p>
                             </div>
-                            <button 
-                              onClick={() => exportToImage('negasht-1-container', 'Religious_Khutbah.png')}
-                              className="w-full py-2 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30 transition-all text-sm font-bold"
-                            >
-                              دانلود تصویر مذهبی
-                            </button>
                           </div>
-
-                          {/* Negasht 2 */}
-                          <div className="space-y-4">
-                            <h4 className="text-center text-amber-400 font-bold">خطبه‌نگاشت سیاسی</h4>
-                            <div 
-                              id="negasht-2-container"
-                              className="relative aspect-square w-full max-w-[500px] mx-auto overflow-hidden rounded-xl shadow-2xl"
-                              style={{ 
-                                backgroundImage: `url('${negashtBg}')`,
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center'
-                              }}
-                            >
-                              {/* Text Overlay Area - Blue Box at bottom */}
-                              <div className="absolute bottom-[4.5%] left-[5%] right-[5%] h-[35%] flex flex-col items-center justify-center text-center px-6 leading-tight">
-                                <p className="text-[10px] font-bold text-white mb-1" style={{ textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000', fontFamily: 'Vazirmatn' }}>
-                                  نماز جمعه {new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())} دهستان میانکاله (زاغمرز)
-                                </p>
-                                <p className="text-[15px] font-bold text-white mb-2" style={{ textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000', fontFamily: 'Vazirmatn' }}>
-                                  امام جمعه محترم دهستان میانکاله(زاغمرز) حجت الاسلام والمسلمین حاج حسین انزائی:
-                                </p>
-                                <p className="text-[15.5px] font-bold text-yellow-400" style={{ textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000', fontFamily: 'Vazirmatn' }}>
-                                  {summary.khutbah2Quote}
-                                </p>
-                              </div>
-                            </div>
-                            <button 
-                              onClick={() => exportToImage('negasht-2-container', 'Political_Khutbah.png')}
-                              className="w-full py-2 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30 transition-all text-sm font-bold"
-                            >
-                              دانلود تصویر سیاسی
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {negashtBg && (
-                        <div className="flex justify-center">
                           <button 
-                            onClick={() => setNegashtBg(null)}
-                            className="text-slate-500 hover:text-slate-300 transition-all text-xs"
+                            onClick={() => exportToImage('negasht-1-container', 'Religious_Khutbah.png')}
+                            className="w-full py-2 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30 transition-all text-sm font-bold"
                           >
-                            تغییر تصویر پس‌زمینه
+                            دانلود تصویر مذهبی
                           </button>
                         </div>
-                      )}
+
+                        {/* Negasht 2 */}
+                        <div className="space-y-4">
+                          <h4 className="text-center text-amber-400 font-bold">خطبه‌نگاشت سیاسی</h4>
+                          <div 
+                            id="negasht-2-container"
+                            className="relative aspect-square w-full max-w-[500px] mx-auto overflow-hidden rounded-xl shadow-2xl"
+                            style={{ 
+                              backgroundImage: `url('${negashtBg}')`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center'
+                            }}
+                          >
+                            {/* Text Overlay Area - Blue Box at bottom */}
+                            <div className="absolute bottom-[4.5%] left-[5%] right-[5%] h-[35%] flex flex-col items-center justify-center text-center px-6 leading-tight">
+                              <p className="text-[10px] font-bold text-white mb-1" style={{ textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000', fontFamily: 'Vazirmatn' }}>
+                                نماز جمعه {new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())} دهستان میانکاله (زاغمرز)
+                              </p>
+                              <p className="text-[15px] font-bold text-white mb-2" style={{ textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000', fontFamily: 'Vazirmatn' }}>
+                                امام جمعه محترم دهستان میانکاله(زاغمرز) حجت الاسلام والمسلمین حاج حسین انزائی:
+                              </p>
+                              <p className="text-[15.5px] font-bold text-yellow-400" style={{ textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000', fontFamily: 'Vazirmatn' }}>
+                                {summary.khutbah2Quote}
+                              </p>
+                            </div>
+                          </div>
+                          <button 
+                            onClick={() => exportToImage('negasht-2-container', 'Political_Khutbah.png')}
+                            className="w-full py-2 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30 transition-all text-sm font-bold"
+                          >
+                            دانلود تصویر سیاسی
+                          </button>
+                        </div>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
