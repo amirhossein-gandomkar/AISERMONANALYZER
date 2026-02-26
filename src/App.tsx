@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useMotionValue, useSpring } from 'motion/react';
+import { motion, AnimatePresence, useMotionValue, useSpring, useMotionTemplate } from 'motion/react';
 import { 
   FileText, 
   Sparkles, 
@@ -14,10 +14,84 @@ import {
   CheckCircle2, 
   AlertCircle,
   ChevronLeft,
-  Quote
+  Quote,
+  Image as ImageIcon
 } from 'lucide-react';
 import { summarizeKhutbahs, SummaryResponse } from './services/gemini';
-import { exportToWord } from './utils';
+import { exportToWord, exportToPDF, exportToImage } from './utils';
+
+const FloatingParticles = () => {
+  const [dimensions, setDimensions] = useState({ width: 1200, height: 800 });
+  
+  useEffect(() => {
+    const updateDimensions = () => {
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    };
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
+
+  const particles = Array.from({ length: 30 });
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      {particles.map((_, i) => (
+        <motion.div
+          key={i}
+          initial={{ 
+            x: Math.random() * dimensions.width, 
+            y: Math.random() * dimensions.height,
+            opacity: 0
+          }}
+          animate={{ 
+            x: [
+              Math.random() * dimensions.width, 
+              Math.random() * dimensions.width, 
+              Math.random() * dimensions.width
+            ],
+            y: [
+              Math.random() * dimensions.height, 
+              Math.random() * dimensions.height, 
+              Math.random() * dimensions.height
+            ],
+            opacity: [0, 0.4, 0]
+          }}
+          transition={{ 
+            duration: 15 + Math.random() * 25, 
+            repeat: Infinity, 
+            ease: "easeInOut" 
+          }}
+          className="absolute w-1.5 h-1.5 bg-emerald-500/40 rounded-full blur-[1px]"
+        />
+      ))}
+    </div>
+  );
+};
+
+const AnimatedBlobs = () => {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-30">
+      <motion.div
+        animate={{
+          x: [0, 100, -50, 0],
+          y: [0, -50, 100, 0],
+          scale: [1, 1.2, 0.9, 1],
+        }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-emerald-600/20 rounded-full blur-[120px]"
+      />
+      <motion.div
+        animate={{
+          x: [0, -100, 50, 0],
+          y: [0, 100, -50, 0],
+          scale: [1, 0.8, 1.1, 1],
+        }}
+        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-teal-600/20 rounded-full blur-[120px]"
+      />
+    </div>
+  );
+};
 
 export default function App() {
   const [khutbah1, setKhutbah1] = useState('');
@@ -26,12 +100,17 @@ export default function App() {
   const [summary, setSummary] = useState<SummaryResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showNegasht, setShowNegasht] = useState(false);
+  const [negashtBg, setNegashtBg] = useState<string | null>(null);
+  const negashtRef1 = useRef<HTMLDivElement>(null);
+  const negashtRef2 = useRef<HTMLDivElement>(null);
 
   // Mouse tracking for background effect
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const springX = useSpring(mouseX, { stiffness: 50, damping: 20 });
   const springY = useSpring(mouseY, { stiffness: 50, damping: 20 });
+  const background = useMotionTemplate`radial-gradient(circle 600px at ${springX}px ${springY}px, rgba(16, 185, 129, 0.15), transparent 80%)`;
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -85,10 +164,10 @@ export default function App() {
       {/* Interactive Background */}
       <motion.div 
         className="fixed inset-0 pointer-events-none opacity-40 z-0"
-        style={{
-          background: `radial-gradient(circle 600px at ${springX}px ${springY}px, rgba(16, 185, 129, 0.15), transparent 80%)`
-        }}
+        style={{ background }}
       />
+      <AnimatedBlobs />
+      <FloatingParticles />
       <div className="fixed inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none z-0" />
 
       <main className="relative z-10 max-w-5xl mx-auto px-6 py-12">
@@ -100,7 +179,7 @@ export default function App() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm mb-6"
           >
             <Sparkles className="w-4 h-4" />
-            <span>قدرت گرفته از هوش مصنوعی Gemini 3.1 Pro</span>
+            <span>قدرت گرفته از هوش مصنوعی Gemini 2.5 Flash</span>
           </motion.div>
           <motion.h1 
             initial={{ opacity: 0, scale: 0.9 }}
@@ -215,12 +294,13 @@ export default function App() {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               className="relative"
+              id="summary-result"
             >
               <div className="absolute -inset-1 bg-gradient-to-b from-emerald-500/20 to-transparent rounded-[2rem] blur-2xl opacity-50" />
               
               <div className="relative bg-[#121215] border border-white/10 rounded-[2rem] p-8 md:p-12 shadow-2xl">
                 {/* Result Header */}
-                <div className="flex flex-wrap items-center justify-between gap-6 mb-12 border-b border-white/5 pb-8">
+                <div className="flex flex-wrap items-center justify-between gap-6 mb-12 border-b border-white/5 pb-8 export-buttons">
                   <div className="space-y-1">
                     <h3 className="text-emerald-400 font-medium flex items-center gap-2">
                       <CheckCircle2 className="w-5 h-5" />
@@ -229,23 +309,158 @@ export default function App() {
                     <p className="text-slate-500 text-sm">بر اساس تحلیل هوش مصنوعی از محتوای ارائه شده</p>
                   </div>
                   
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     <button
                       onClick={handleCopy}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-sm"
                     >
                       {copied ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                       <span>{copied ? 'کپی شد' : 'کپی متن'}</span>
                     </button>
                     <button
                       onClick={() => exportToWord(summary)}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-black font-bold hover:bg-emerald-400 transition-all"
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-all text-sm"
                     >
                       <Download className="w-4 h-4" />
-                      <span>خروجی Word</span>
+                      <span>Word</span>
+                    </button>
+                    <button
+                      onClick={() => exportToPDF('summary-result')}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 text-black font-bold hover:bg-emerald-400 transition-all text-sm"
+                    >
+                      <FileText className="w-4 h-4" />
+                      <span>PDF</span>
+                    </button>
+                    <button
+                      onClick={() => setShowNegasht(!showNegasht)}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-all text-sm"
+                    >
+                      <ImageIcon className="w-4 h-4" />
+                      <span>{showNegasht ? 'پنهان سازی خطبه‌نگاشت' : 'ایجاد خطبه‌نگاشت'}</span>
                     </button>
                   </div>
                 </div>
+
+                {/* Khutbah-Negasht Display */}
+                <AnimatePresence>
+                  {showNegasht && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden mb-12 space-y-8"
+                    >
+                      {/* Background Upload */}
+                      {!negashtBg && (
+                        <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-amber-500/30 rounded-2xl bg-amber-500/5">
+                          <ImageIcon className="w-12 h-12 text-amber-500/50 mb-4" />
+                          <p className="text-amber-400 mb-4">لطفاً تصویر پس‌زمینه خطبه‌نگاشت را انتخاب کنید</p>
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (ev) => setNegashtBg(ev.target?.result as string);
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            className="hidden" 
+                            id="negasht-bg-upload" 
+                          />
+                          <label 
+                            htmlFor="negasht-bg-upload"
+                            className="px-6 py-2 bg-amber-500 text-black font-bold rounded-lg cursor-pointer hover:bg-amber-400 transition-all"
+                          >
+                            انتخاب تصویر
+                          </label>
+                        </div>
+                      )}
+
+                      {negashtBg && (
+                        <div className="grid md:grid-cols-2 gap-8">
+                          {/* Negasht 1 */}
+                          <div className="space-y-4">
+                            <h4 className="text-center text-amber-400 font-bold">خطبه‌نگاشت مذهبی</h4>
+                            <div 
+                              id="negasht-1-container"
+                              className="relative aspect-square w-full max-w-[500px] mx-auto overflow-hidden rounded-xl shadow-2xl"
+                              style={{ 
+                                backgroundImage: `url('${negashtBg}')`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center'
+                              }}
+                            >
+                              {/* Text Overlay Area - Blue Box at bottom */}
+                              <div className="absolute bottom-[4.5%] left-[5%] right-[5%] h-[35%] flex flex-col items-center justify-center text-center px-6 leading-tight">
+                                <p className="text-[10px] font-bold text-white mb-1" style={{ textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000', fontFamily: 'Vazirmatn' }}>
+                                  نماز جمعه {new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())} دهستان میانکاله (زاغمرز)
+                                </p>
+                                <p className="text-[15px] font-bold text-white mb-2" style={{ textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000', fontFamily: 'Vazirmatn' }}>
+                                  امام جمعه محترم دهستان میانکاله(زاغمرز) حجت الاسلام والمسلمین حاج حسین انزائی:
+                                </p>
+                                <p className="text-[15.5px] font-bold text-yellow-400" style={{ textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000', fontFamily: 'Vazirmatn' }}>
+                                  {summary.khutbah1Quote}
+                                </p>
+                              </div>
+                            </div>
+                            <button 
+                              onClick={() => exportToImage('negasht-1-container', 'Religious_Khutbah.png')}
+                              className="w-full py-2 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30 transition-all text-sm font-bold"
+                            >
+                              دانلود تصویر مذهبی
+                            </button>
+                          </div>
+
+                          {/* Negasht 2 */}
+                          <div className="space-y-4">
+                            <h4 className="text-center text-amber-400 font-bold">خطبه‌نگاشت سیاسی</h4>
+                            <div 
+                              id="negasht-2-container"
+                              className="relative aspect-square w-full max-w-[500px] mx-auto overflow-hidden rounded-xl shadow-2xl"
+                              style={{ 
+                                backgroundImage: `url('${negashtBg}')`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center'
+                              }}
+                            >
+                              {/* Text Overlay Area - Blue Box at bottom */}
+                              <div className="absolute bottom-[4.5%] left-[5%] right-[5%] h-[35%] flex flex-col items-center justify-center text-center px-6 leading-tight">
+                                <p className="text-[10px] font-bold text-white mb-1" style={{ textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000', fontFamily: 'Vazirmatn' }}>
+                                  نماز جمعه {new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())} دهستان میانکاله (زاغمرز)
+                                </p>
+                                <p className="text-[15px] font-bold text-white mb-2" style={{ textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000', fontFamily: 'Vazirmatn' }}>
+                                  امام جمعه محترم دهستان میانکاله(زاغمرز) حجت الاسلام والمسلمین حاج حسین انزائی:
+                                </p>
+                                <p className="text-[15.5px] font-bold text-yellow-400" style={{ textShadow: '1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000', fontFamily: 'Vazirmatn' }}>
+                                  {summary.khutbah2Quote}
+                                </p>
+                              </div>
+                            </div>
+                            <button 
+                              onClick={() => exportToImage('negasht-2-container', 'Political_Khutbah.png')}
+                              className="w-full py-2 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30 transition-all text-sm font-bold"
+                            >
+                              دانلود تصویر سیاسی
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {negashtBg && (
+                        <div className="flex justify-center">
+                          <button 
+                            onClick={() => setNegashtBg(null)}
+                            className="text-slate-500 hover:text-slate-300 transition-all text-xs"
+                          >
+                            تغییر تصویر پس‌زمینه
+                          </button>
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 {/* Content Display */}
                 <div className="space-y-10 leading-relaxed text-slate-300">
