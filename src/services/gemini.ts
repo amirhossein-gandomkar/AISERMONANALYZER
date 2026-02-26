@@ -16,6 +16,8 @@ export interface SummaryResponse {
     title: string;
     text: string;
   };
+  khutbah1Quote: string;
+  khutbah2Quote: string;
 }
 
 export async function summarizeKhutbahs(khutbah1Text: string, khutbah2Text: string): Promise<SummaryResponse> {
@@ -24,7 +26,7 @@ export async function summarizeKhutbahs(khutbah1Text: string, khutbah2Text: stri
   }
 
   const ai = new GoogleGenAI({ apiKey: API_KEY });
-  const model = "gemini-1.5-flash";
+  const model = "gemini-2.5-flash";
 
   const prompt = `
     شما یک دستیار متخصص در خلاصهسازی و تحلیل محتوای خطبههای نماز جمعه هستید.
@@ -38,6 +40,8 @@ export async function summarizeKhutbahs(khutbah1Text: string, khutbah2Text: stri
     5. khutbah2.summary: خلاصه خطبه دوم (سیاسی/اجتماعی) بین ۳ تا ۵ بخش.
     6. overallSummary.title: تیتر خلاصه نهایی.
     7. overallSummary.text: خلاصه کلی (حدود ۴ خط).
+    8. khutbah1Quote: زیباترین و تاثیرگذارترین جمله یا بخش کوتاه از خطبه اول برای طراحی گرافیکی (حداکثر ۱۵ کلمه).
+    9. khutbah2Quote: زیباترین و تاثیرگذارترین جمله یا بخش کوتاه از خطبه دوم برای طراحی گرافیکی (حداکثر ۱۵ کلمه).
     خروجی را دقیقا در قالب JSON مشخص شده برگردانید.
   `;
 
@@ -94,8 +98,10 @@ export async function summarizeKhutbahs(khutbah1Text: string, khutbah2Text: stri
             },
             required: ["title", "text"],
           },
+          khutbah1Quote: { type: Type.STRING },
+          khutbah2Quote: { type: Type.STRING },
         },
-        required: ["impactfulTitle", "khutbah1", "khutbah2", "overallSummary"],
+        required: ["impactfulTitle", "khutbah1", "khutbah2", "overallSummary", "khutbah1Quote", "khutbah2Quote"],
       },
     },
   });
