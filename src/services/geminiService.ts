@@ -39,7 +39,7 @@ export const generateSummary = async (
 9. khutbah2.quote: بهترین و زیباترین بخش از خطبه دوم (سیاسی) برای قرار دادن در تصویر (حداقل ۳۰ کلمه).`;
 
   const response = await ai.models.generateContent({
-    model: "gemini-3.1-pro-preview",
+    model: "gemini-2.5-flash",
     contents: prompt,
     config: {
       responseMimeType: "application/json",
