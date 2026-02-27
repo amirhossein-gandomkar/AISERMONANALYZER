@@ -2,7 +2,7 @@
   "name": "khutbah-ai-tool",
   "version": "2.0.0",
   "scripts": {
-    "start": "node api/proxy.js"
+    "build": "echo 'No build step required for static HTML'"
   },
   "dependencies": {
     "node-fetch": "^3.3.0"
